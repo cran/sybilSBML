@@ -1,0 +1,144 @@
+\documentclass[a4paper,headings=small]{scrartcl}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{textcomp,lmodern}
+\typearea[current]{last}
+\usepackage{fixltx2e,mparhack,mathdots}
+
+\usepackage{natbib}
+\usepackage{hyperref}
+
+\usepackage{microtype}
+
+\newcommand{\Comp}[1]{\texttt{#1}}
+% bash command prompt
+\DeclareRobustCommand{\PROMPTL}{\Comp{\$}}
+
+% just a bash command
+\DeclareRobustCommand{\COML}[1]{%
+    \small{\PROMPTL\Comp{ #1}}
+}
+% bash command with quote environment
+\DeclareRobustCommand{\COMML}[1]{%
+    \begin{quote}%
+        \small{\PROMPTL\Comp{ #1}}
+    \end{quote}
+}
+
+\addtolength{\skip\footins}{0.5\baselineskip}
+\usepackage{fnpos}
+
+
+\hypersetup{
+	pdftitle = {sybilSBML -- Quick Start},
+	pdfauthor = {Gabriel Gelius-Dietrich},
+	pdfsubject = {SBML support for SyBiL},
+	pdfkeywords = {SBML},
+    pdfborder = {0 0 0},
+    pdfhighlight = {/N}
+}
+
+
+\newcommand{\pkg}[1]{\emph{#1}}
+\newcommand{\pkgname}{\pkg{sybilSBML}}
+\newcommand{\prgname}[1]{\textsc{#1}}
+
+
+\begin{document}
+\title{sybilSBML -- Quick Start}
+%\VignetteIndexEntry{Package sybilSBML -- Quick Start}
+%\VignettePackage{sybilSBML}
+\author{Gabriel Gelius-Dietrich}
+
+\maketitle
+
+
+\section{Introduction}
+
+The package \pkgname{} is an addition to \pkg{SyBiL} providing support for
+metabolic networks written in SBML (Systems Biology Markup Language), in
+particular those developed by Bernhard \O. Palsson's
+lab\footnote{\url{http://gcrg.ucsd.edu/}} and those from the BiGG
+database\footnote{\url{http://bigg.ucsd.edu/}}\citep{Schellenberger:2010fk}.
+The software is available from the \pkgname{}
+homepage\footnote{\url{http://www.cs.uni-duesseldorf.de/AG/BI/Software/SyBiL/}}.
+
+The package \pkgname{} requires one additional package \pkg{rsbml} available
+from Bioconductor\footnote{\url{http://www.bioconductor.org/}}, which is itself
+powered by LibSBML \citep{Bornstein:2008uq} available from the SBML
+homepage\footnote{\url{http://www.sbml.org/}} and
+pkg-config\footnote{\url{http://pkg-config.freedesktop.org/wiki/}}.
+
+
+\section{Installation}
+
+The following sections describe the installation process of \pkgname{} on
+various platforms.
+
+
+\subsection{Linux and Mac OS X}
+
+The package \pkgname{} depends on a separate instalation of \pkg{rsbml} and
+therefor of an installation of LibSBML \textbf{(use LibSBML version 3.4.1)}
+and pkg-config (which should be available in a Linux distribution).
+
+If pkg-config is installed in a non-standard directory, set the two environment
+variables \Comp{PKG\_CONFIG\_PATH} and \Comp{PKG\_CONFIG} to appropriate values.
+If LibSBML is installed in a non-standard directory, set the environment
+variables \Comp{LIBSBML3\_CFLAGS} and \Comp{LIBSBML3\_LIBS}, for example, if
+LibSBML is installed in your home directory:
+\COMML{export LIBSBML3\_CFLAGS="-I\$HOME/include"}
+\COMML{export LIBSBML3\_LIBS="-L\$HOME/lib -lxml2 -lz -lm -lbz2 -lsbml -lstdc++"}
+For the installation of \pkg{rsbml}, start R and run
+<<eval=FALSE>>=
+source("http://bioconductor.org/biocLite.R")
+biocLite("rsbml")
+@
+Now install the source code package from a Terminal command line
+
+\COMML{R CMD INSTALL sybilSBML\_X.X.X.tar.gz}
+
+\subsection{Windows}
+
+There is a precompiled binary version of \pkg{rsbml} available, no additional
+software is required. Start R and run
+<<eval=FALSE>>=
+source("http://bioconductor.org/biocLite.R")
+biocLite("rsbml")
+@
+Now install the Windows binary package \Comp{sybilSBML\_X.X.X.zip}.
+
+\section{Usage}
+
+The package \pkgname{} provides the command \Comp{readSBMLmod()} which reads
+SBML formated files and returns instances of class \Comp{modelorg}.
+
+<<eval=FALSE>>=
+library(sybil)
+library(sybilSBML)
+model <- readSBMLmod("<model>.xml")
+@
+
+
+\section{Input files}
+
+The function \Comp{readSBMLmod()} reads metabolic network models written in
+SBML format (Systems Biology Markup Language).  Among the models available in
+this de-facto standard format are in particular those developed by
+Bernhard \O. Palsson's lab.
+
+The metabolite id's are written in the format
+\Comp{M\_<metabolite abbreviation>\_<compartment abbreviation>}.  The compartment
+abbreviation is a one letter abbreviation, e.\,g. \Comp{c} for cytosol.  All
+metabolites outside the system boundary belong to compartment \Comp{b}.  Those
+metabolites are transported into or outside the system.  As long as they are
+mentioned, the network is closed.  The function \Comp{readSBMLmod()} will remove
+them in order to produce an open network.
+
+\nocite{Becker:2007uq,Schellenberger:2011fk}
+
+\bibliographystyle{abbrvnat}
+\bibliography{sybilSBML}
+
+\end{document}

@@ -1,0 +1,10 @@
+95f5d6231e154a91f446c0c3b40ecc2c *DESCRIPTION
+4186f683a08d4e1ecfec6ad7de15a569 *NAMESPACE
+4fa98851a12b00c118d4584d09da5024 *R/readSBMLmod.R
+601b41302c2883cad66939edc84f4c9b *R/uglyHack.R
+da71969a1d429ed39c3ee83ac8833371 *inst/NEWS.Rd
+840e2aaefe245342f6bd0982a2af97ba *inst/doc/sybilSBML.Rnw
+6edaac3872feb20712b904116d939de7 *inst/doc/sybilSBML.pdf
+c6bed62ab9985dbc60ef3ae09106eeb8 *man/readSBMLmod.Rd
+840e2aaefe245342f6bd0982a2af97ba *vignettes/sybilSBML.Rnw
+e6781514beaa8021e4b8898f1264fcf8 *vignettes/sybilSBML.bib
