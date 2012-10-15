@@ -1064,7 +1064,11 @@ sybil::met_name(sbml) <- met_name_tmp
 
 # add a right hand site to the model, all zeros - the null space: Sv = 0
 
-sybil::rhs(sbml) <- numeric(sybil::met_num(sbml))
+sybilVersion <- packageDescription("sybil", fields = "Version")
+if (compareVersion(sybilVersion, "1.1.3") == -1) {
+    sybil::rhs(sbml) <- numeric(sybil::met_num(sbml))
+}
+
 
 #------------------------------------------------------------------------------#
 #                             check reversibilities                            #

@@ -56,13 +56,11 @@
 
 \section{Introduction}
 
-The package \pkgname{} is an addition to \pkg{SyBiL} providing support for
+The package \pkgname{} is an addition to \pkg{sybil} providing support for
 metabolic networks written in SBML (Systems Biology Markup Language), in
 particular those developed by Bernhard \O. Palsson's
 lab\footnote{\url{http://gcrg.ucsd.edu/}} and those from the BiGG
 database\footnote{\url{http://bigg.ucsd.edu/}}\citep{Schellenberger:2010fk}.
-The software is available from the \pkgname{}
-homepage\footnote{\url{http://www.cs.uni-duesseldorf.de/AG/BI/Software/SyBiL/}}.
 
 The package \pkgname{} requires one additional package \pkg{rsbml} available
 from Bioconductor\footnote{\url{http://www.bioconductor.org/}}, which is itself
@@ -80,7 +78,7 @@ various platforms.
 \subsection{Linux and Mac OS X}
 
 The package \pkgname{} depends on a separate instalation of \pkg{rsbml} and
-therefor of an installation of LibSBML \textbf{(use LibSBML version 3.4.1)}
+therefor of an installation of LibSBML %\textbf{(use LibSBML version 3.4.1)}
 and pkg-config (which should be available in a Linux distribution).
 
 If pkg-config is installed in a non-standard directory, set the two environment
