@@ -60,7 +60,7 @@ The package \pkgname{} is an addition to \pkg{sybil} providing support for
 metabolic networks written in SBML (Systems Biology Markup Language), in
 particular those developed by Bernhard \O. Palsson's
 lab\footnote{\url{http://gcrg.ucsd.edu/}} and those from the BiGG
-database\footnote{\url{http://bigg.ucsd.edu/}}\citep{Schellenberger:2010fk}.
+database\footnote{\url{http://bigg.ucsd.edu/}} \citep{Schellenberger:2010fk}.
 
 The package \pkgname{} requires one additional package \pkg{rsbml} available
 from Bioconductor\footnote{\url{http://www.bioconductor.org/}}, which is itself

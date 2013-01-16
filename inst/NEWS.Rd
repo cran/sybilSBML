@@ -7,6 +7,14 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 1.1.16 2013-01-16}{
+  \itemize{
+    \item removed old file \file{NEWS.Rd} from top level directory
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 1.1.15 2012-10-15}{
   \itemize{
     \item updated package vignette
