@@ -7,6 +7,60 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.2 2013-05-28}{
+  \itemize{
+    \item removed \CRANpkg{glpkAPI} from Suggests in the \file{DESCRIPTION} file
+    \item some small changes in package vignette
+    \item some changes in \file{Makevars.win}, so that precompiled libSBML
+          binaries will be packed (for WIndows)
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.1 2013-05-14}{
+  \itemize{
+    \item added \CRANpkg{glpkAPI} to Suggests in the \file{DESCRIPTION} file
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.0 2013-05-14}{
+  \itemize{
+    \item changed argument \code{checkrsbml} to \code{validateSBML} in
+          function \code{readSBMLmod()} and set its default value to
+          \code{FALSE}
+    \item added new function \code{validateSBMLdocument()}
+    \item installation of \pkg{sybilSBML} requires libSBML version 5.6.0 or
+          higher, \pkg{rsbml} is no longer required
+    \item added functions
+          \code{versionLibSBML()},
+          \code{openSBMLfile()},
+          \code{closeSBMLfile()},
+          \code{getSBMLmodel()},
+          \code{delSBMLmodel()},
+          \code{getSBMLlevel()},
+          \code{getSBMLversion()},
+          \code{validateSBMLdocument()},
+          \code{getSBMLerrors()},
+          \code{getSBMLmodId()},
+          \code{getSBMLmodName()},
+          \code{getSBMLnumCompart()},
+          \code{getSBMLnumSpecies()},
+          \code{getSBMLnumReactions()},
+          \code{getSBMLunitDefinitionsList()},
+          \code{getSBMLCompartList()},
+          \code{getSBMLSpeciesList()} and
+          \code{getSBMLReactionsList()}
+          as low-level interface funcitons to the C-API of libSBML
+    \item added classes \code{sbmlPtr} and \code{sbmlError}
+          
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 1.1.16 2013-01-16}{
   \itemize{
     \item removed old file \file{NEWS.Rd} from top level directory

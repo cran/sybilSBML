@@ -1,5 +1,9 @@
+#------------------------------------------------------------------------------#
+#                          Link to libSBML for sybil                           #
+#------------------------------------------------------------------------------#
+
 #  uglyHack.R
-#  FBA and friends with R.
+#  Link to libSBML for sybil.
 #
 #  Copyright (C) 2010-2013 Gabriel Gelius-Dietrich, Dpt. for Bioinformatics,
 #  Institute for Informatics, Heinrich-Heine-University, Duesseldorf, Germany.

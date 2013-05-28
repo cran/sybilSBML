@@ -1,18 +1,21 @@
 Package: sybilSBML
 Type: Package
 Title: SBML Integration in Package sybil
-Version: 1.1.16
-Date: 2013-01-16
+Version: 2.0.2
+Date: 2013-05-28
 Authors@R: c(person("Gabriel", "Gelius-Dietrich", role = c("aut",
-        "cre"), email = "geliudie@uni-duesseldorf.de"))
-Depends: R (>= 2.12.0), Matrix (>= 1.0-4), rsbml (>= 2.10.0), sybil (>=
-        1.0.0), methods
+        "cre"), email = "geliudie@uni-duesseldorf.de"), person("Deya",
+        "Alzoubi", role = "ctb"))
+Depends: R (>= 2.14.2), Matrix, sybil (>= 1.0.0), methods
 Description: SBML (Systems Biology Markup Language) integration in
         sybil
 License: GPL-3
 LazyLoad: yes
-Packaged: 2013-01-16 15:07:55 UTC; gabriel
-Author: Gabriel Gelius-Dietrich [aut, cre]
+Collate: generics.R sbmlPtrClass.R sbmlErrorClass.R sybilSBML.R
+        uglyHack.R readSBMLmod.R zzz.R
+Packaged: 2013-05-28 14:55:25 UTC; gabriel
+Author: Gabriel Gelius-Dietrich [aut, cre], Deya Alzoubi [ctb]
 Maintainer: Gabriel Gelius-Dietrich <geliudie@uni-duesseldorf.de>
+NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-01-16 17:26:16
+Date/Publication: 2013-05-28 17:34:41

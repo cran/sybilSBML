@@ -1,5 +1,9 @@
+#------------------------------------------------------------------------------#
+#                          Link to libSBML for sybil                           #
+#------------------------------------------------------------------------------#
+
 #  readSBMLmod.R
-#  FBA and friends with R.
+#  Link to libSBML for sybil.
 #
 #  Copyright (C) 2010-2013 Gabriel Gelius-Dietrich, Dpt. for Bioinformatics,
 #  Institute for Informatics, Heinrich-Heine-University, Duesseldorf, Germany.
@@ -33,7 +37,7 @@
 
 readSBMLmod <- function(filename, description,
                         def_bnd = SYBIL_SETTINGS("MAXIMUM"),
-                        checkrsbml = TRUE,
+                        validateSBML = FALSE,
                         extMetFlag = "b",
                         bndCond = TRUE,
                         ignoreNoAn = FALSE,
@@ -46,6 +50,11 @@ readSBMLmod <- function(filename, description,
                         constrMet = FALSE,
                         tol = SYBIL_SETTINGS("TOLERANCE")) {
 
+on.exit(expr = {
+    if ( (exists("sbmldoc")) && (!isNULLpointerSBML(sbmldoc)) ) {
+        closeSBMLfile(sbmldoc)
+    }
+} )
 
 #------------------------------------------------------------------------------#
 # open the model file
@@ -66,9 +75,7 @@ else {
 #                some functions we use to create the model                     #
 #------------------------------------------------------------------------------#
 
-#------------------------------------------------------------------------------#
 
-entryforS <- function(X) {
 
 #------------------------------------------------------------------------------#
 # X containes metabolite id's (an object of class "SpeciesReference"). The slot
@@ -77,7 +84,9 @@ entryforS <- function(X) {
 # the stoichiometric matrix S.
 #------------------------------------------------------------------------------#
 
-    n    <- length(X)
+entryforS <- function(X) {
+
+    n    <- length(X[["species"]])  # number of metabolites in X
     si   <- rep(i, n)    # the current column (reaction)
     sj   <- integer(n)   # the row (metabolite)
     s_ji <- numeric(n)   # the stoichiometric coefficient
@@ -87,7 +96,7 @@ entryforS <- function(X) {
     CURR_MET <- character(n) # metabolites in X
 
     t <- 0
-    for (el in X) {
+    for (i in seq(along = X[["species"]])) {
         t <- t + 1
 
         # This is possible, because the metabolite id's are unique.
@@ -95,7 +104,7 @@ entryforS <- function(X) {
         # The metabolite id's are removed from the metabolites list,
         # but not from the reactions list.
 
-        CURR_MET[t] <- el@species
+        CURR_MET[t] <- X[["species"]][i]
         if (isTRUE(mergeMet)) {
             met_indCURR <- match(CURR_MET[t], CURR_MET[-t])
         }
@@ -104,14 +113,14 @@ entryforS <- function(X) {
         }
 
         if (is.na(met_indCURR)) {
-            sj[t]     <- match(el@species, met_id_tmp)         # the row number
-            s_ji[t]   <- el@stoichiometry
+            sj[t]     <- match(X[["species"]][i], met_id_tmp)    # the row number
+            s_ji[t]   <- X[["stoichiometry"]][i]
             remMet[t] <- ifelse(is.na(sj[t]), FALSE, TRUE)
 
         }
         else {
             remMet[t] <- FALSE
-            s_ji[met_indCURR] <- s_ji[met_indCURR] + el@stoichiometry
+            s_ji[met_indCURR] <- s_ji[met_indCURR] + X[["stoichiometry"]][i]
             msg <- paste("reaction no.", i, dQuote(react_id_tmp[i]),
                          "metabolite no.", t, dQuote(CURR_MET[t]),
                          "was merged")
@@ -132,17 +141,13 @@ entryforS <- function(X) {
 
 }
 
-#------------------------------------------------------------------------------#
-
-
-#------------------------------------------------------------------------------#
-
-checkupplowbnd <- function(x) {
 
 #------------------------------------------------------------------------------#
 # Check the absolute value of a reaction bound (vmin, vmax). If it is larger
 # than def_bnd, it will be replaced by def_bnd.
 #------------------------------------------------------------------------------#
+
+checkupplowbnd <- function(x) {
 
     if (abs(x) > def_bnd) {
         bound <- def_bnd
@@ -157,35 +162,30 @@ checkupplowbnd <- function(x) {
 
 }
 
-#------------------------------------------------------------------------------#
-
-
-#------------------------------------------------------------------------------#
-
-fatal <- function(x, part, value) {
 
 #------------------------------------------------------------------------------#
 # A control function. For every part in the SBML file, the Id's are a mandatory
 # argument. Here we check, if they are all brave and there.
 #------------------------------------------------------------------------------#
 
-  if (length(x) == 0) {
-      stop("missing ", part, " ", value)
+missingId <- function(x) {
+
+  mid <- which(x[["id"]] == "no_id")
+  if (length(mid) > 0) {
+      warning("id is missing in ", is(x)[1], ": ", paste(mid, collapse = ", "))
   }
+  
   return(TRUE)
 
 }
 
-#------------------------------------------------------------------------------#
-
-
-#------------------------------------------------------------------------------#
-
-formatSBMLid <- function(idstr) {
 
 #------------------------------------------------------------------------------#
 # beautify SBML id's
 #------------------------------------------------------------------------------#
+
+formatSBMLid <- function(idstr) {
+
 
     idstr <- gsub("-DASH-",        "-",   idstr, fixed = TRUE)
     idstr <- gsub("_DASH_",        "-",   idstr, fixed = TRUE)
@@ -208,16 +208,12 @@ formatSBMLid <- function(idstr) {
     return(idstr)
 }
 
-#------------------------------------------------------------------------------#
-
-
-#------------------------------------------------------------------------------#
-
-parseNotesReact <- function(notes) {
 
 #------------------------------------------------------------------------------#
 # parse the notes field of the reactions
 #------------------------------------------------------------------------------#
+
+parseNotesReact <- function(notes) {
 
   if (regexpr("html:p", notes, fixed = TRUE) == -1) {
       tag <- "p"
@@ -270,51 +266,10 @@ parseNotesReact <- function(notes) {
 
 }
 
-#------------------------------------------------------------------------------#
 
 
 #------------------------------------------------------------------------------#
-
-unlistRsbml <- function(listed) {
-
-#------------------------------------------------------------------------------#
-# the following is a specific unlist function for rsbml
-#------------------------------------------------------------------------------#
-
-  return(unlist(listed, use.names = FALSE, recursive = TRUE))
-}
-
-
-#------------------------------------------------------------------------------#
-
-# readTheModel <- function(name) {
-#
-# #------------------------------------------------------------------------------#
-# # Read the SBML model from SBML file. Check rsbml version and run
-# # corresponding command.
-# #------------------------------------------------------------------------------#
-#
-#   rsbml_version = packageDescription("rsbml", fields = "Version")
-#
-#   if (compareVersion(rsbml_version, "1.6.0") <= 0) {
-#       # for rsbml <= 1.6.0 (bioconductor 2.1)
-#       goodModel <- rsbml::rsbml_read(name, validate = FALSE, quiet = TRUE)
-#       return(goodModel)
-#   }
-#   if (compareVersion(rsbml_version, "1.6.0") > 0) {
-#       # for rsbml >= 2.0.0 (bioconductor 2.2)
-#       goodModel <- rsbml::rsbml_read(name, dom = FALSE)
-#       return(goodModel)
-#   }
-#   else {
-#       # this is for rsbml < 1.5.2 (maybe I should leave that out)
-#       goodModel <- rsbml::rsbml_read(name, check = FALSE, validate = FALSE)
-#       return(goodModel)
-#   }
-#
-#
-# }
-
+#                         main part of the script                              #
 #------------------------------------------------------------------------------#
 
 
@@ -322,17 +277,9 @@ unlistRsbml <- function(listed) {
 #                            reading the model                                 #
 #------------------------------------------------------------------------------#
 
-message("reading the model ... ", appendLF = FALSE)
+message("reading SBML file ... ", appendLF = FALSE)
 
-ModelTmp <- try(rsbml::rsbml_read(filename, dom = FALSE), silent = TRUE)
-
-if (is(ModelTmp, "try-error")) {
-    message("seems to be bad formated, trying to fix ... ", appendLF = FALSE)
-    hackedModel <- sybilSBML:::.uglyHack(filename)
-    ModelTmp <- rsbml::rsbml_read(hackedModel, dom = FALSE)
-    unlink(hackedModel)
-    remove(hackedModel)
-}
+sbmldoc <- openSBMLfile(filename)
 
 message("OK")
 
@@ -341,34 +288,58 @@ message("OK")
 #                              check the model                                 #
 #------------------------------------------------------------------------------#
 
-if (checkrsbml == TRUE) {
-    message("checking the model ... ", appendLF = FALSE)
-    check <- rsbml::rsbml_check(ModelTmp)                   # check for errors
+if (isTRUE(validateSBML)) {
+    message("validating SBML file ... ", appendLF = FALSE)
+    check <- validateSBMLdocument(sbmldoc)                   # check for errors
 
-    if (check == FALSE) {
+    if (!isTRUE(check)) {
 
-        rsbmlProb <- rsbml::rsbml_problems(ModelTmp)
-        if ((length(rsbml::errors(rsbmlProb)) != 0) ||
-            (length(rsbml::fatals(rsbmlProb)) != 0)) {
+        err <- getSBMLerrors(sbmldoc)
+        
+        nerr <- getNumErrors(err)
+        if (nerr["Errors"] > 0) {
+        
+            message("found errors, trying to fix ... ", appendLF = FALSE)
+
+            closeSBMLfile(sbmldoc)
+            hackedModel <- sybilSBML:::.uglyHack(filename)
+            sbmldoc <- openSBMLfile(hackedModel)
+            unlink(hackedModel)
+            remove(hackedModel)
+            check <- validateSBMLdocument(sbmldoc)
+        
+            if (!isTRUE(check)) {
+
+                sbmlerr <- getSBMLerrors(sbmldoc)
+                nerr <- getNumErrors(sbmlerr)
+                if ((nerr["Errors"] > 0) ||
+                    (nerr["Fatals"] > 0)) {
+                    msg <- paste("FAILED: review file", dQuote(filename),
+                                 "carefully, returning sbmlError object")
+                    warning(msg)
+                    return(sbmlerr)
+                }
+                else {
+                    msg <- paste("found warnings and/or infos concerning SBML,",
+                                 "you may want to check them with the command",
+                                 sQuote(paste("validateSBMLdocument('", filename, "')", sep = "")), "... ")
+                    message(msg, appendLF = FALSE)
+                    #printSlot(sbmlerr, "Warnings")
+                }
+            }
+
+        }
+        else if (nerr["Fatals"] > 0) {
             msg <- paste("FAILED review file", dQuote(filename),
-                         "carefully, returning rsbml_problems object")
+                         "carefully, returning sbmlError object")
             warning(msg)
-            return(rsbmlProb)
+            return(sbmlerr)
         }
         else {
-            msg <- "found warnings concerning SBML, check them carefully ... "
+            msg <- paste("found warnings and/or infos concerning SBML,",
+                         "you may want to check them with the command",
+                         sQuote(paste("validateSBMLdocument('", filename, "')", sep = "")), "... ")
             message(msg, appendLF = FALSE)
-            lapply(rsbml::warns(rsbmlProb),
-                   function(x) {
-                       wmsg <- gsub("\\s", " ", x@msg)
-                       tmsg <- paste("[",
-                                     x@line,
-                                     " ",
-                                     x@column, "] ",
-                                     wmsg, sep = "")
-                       warning(tmsg, call. = FALSE)
-                    }
-            )
         }
 
     }
@@ -377,35 +348,23 @@ if (checkrsbml == TRUE) {
 
 
 #------------------------------------------------------------------------------#
-#                           translate the model                                #
+#                         generate modelorg object                             #
 #------------------------------------------------------------------------------#
 
-message("translating the model ... ", appendLF = FALSE)
-Mod <- try(rsbml::rsbml_dom(ModelTmp), silent = TRUE)
+message("getting the model ... ", appendLF = FALSE)
 
-if (is(Mod, "try-error")) {
-    message("rsbml_dom failed, trying to fix ... ", appendLF = FALSE)
-    hackedModel <- sybilSBML:::.uglyHack(filename, remapply = TRUE)
-    ModelTmp <- rsbml::rsbml_read(hackedModel, dom = FALSE)
-    unlink(hackedModel)
-    remove(hackedModel)
-    Mod2 <- try(rsbml::rsbml_dom(ModelTmp))
-    if (is(Mod2, "try-error")) {
-        rsbmlProb <- rsbml::rsbml_problems(ModelTmp)
-        msg <- paste("FAILED review file", dQuote(filename),
-                     "carefully, returning rsbml_problems object")
-        warning(msg)
-        return(rsbmlProb)
-    }
-    else {
-        Mod <- Mod2
-    }
+sbmlmod <- getSBMLmodel(sbmldoc)
+
+if (is.null(sbmlmod)) {
+    message("FAILED")
+    stop("Could not get the SBML model. Run SBML validation by ",
+         "validateSBMLdocument('", filename, "').")
 }
 
-mid   <- ifelse(length(rsbml::id(rsbml::model(Mod))) == 0,   filename, rsbml::id(rsbml::model(Mod)))
-mname <- ifelse(length(rsbml::name(rsbml::model(Mod))) == 0, filename, rsbml::name(rsbml::model(Mod)))
+mid   <- ifelse(length(getSBMLmodId(sbmlmod)) == 0,   filename, getSBMLmodId(sbmlmod))
+mname <- ifelse(length(getSBMLmodName(sbmlmod)) == 0, filename, getSBMLmodName(sbmlmod))
 
-sbml <- sybil::modelorg(mid, mname)              # S4 object of class modelorg
+mod <- sybil::modelorg(mid, mname)              # S4 object of class modelorg
 
 message("OK")
 
@@ -415,10 +374,10 @@ message("OK")
 #------------------------------------------------------------------------------#
 
 if (mdesc == filename) {
-    mdesc  <- sub("^(.+)\\.xml", "\\1", basename(filename))
+    mdesc  <- sub("\\.xml$", "", basename(filename))
 }
 
-sybil::mod_desc(sbml) <- mdesc
+sybil::mod_desc(mod) <- mdesc
 
 
 #------------------------------------------------------------------------------#
@@ -432,56 +391,41 @@ sybil::mod_desc(sbml) <- mdesc
 #                               compartments                                   #
 #------------------------------------------------------------------------------#
 
-mod_compart_tmp          <- lapply(rsbml::compartments(rsbml::model(Mod)), rsbml::id)
-sybil::mod_compart(sbml) <- unlistRsbml(mod_compart_tmp)
-
-# check weather all Id's are there.
-sapply(sybil::mod_compart(sbml), function(x) fatal(x, part = " compartment ", value = "Id"))
-
+compartmentsList        <- getSBMLCompartList(sbmlmod)
+missingId(compartmentsList)
+sybil::mod_compart(mod) <- compartmentsList[["id"]]
 
 
 #------------------------------------------------------------------------------#
 #                           initial reactions list                             #
 #------------------------------------------------------------------------------#
-# check for the reactions slot
 
-react_id_tmp <- lapply(rsbml::reactions(rsbml::model(Mod)), rsbml::id)  # all reaction id's
-react_id_tmp <- unlistRsbml(react_id_tmp)
-
-# check weather all Id's are there.
-sapply(react_id_tmp, function(x) fatal(x, part = " reaction ", value = "Id"))
-
-# number of reactions (columns)
-numreact <- length(react_id_tmp)
+reactionsList <- getSBMLReactionsList(sbmlmod)
+missingId(reactionsList)
+react_id_tmp  <- reactionsList[["id"]]
+numreact      <- getSBMLnumReactions(sbmlmod)
 
 
 #------------------------------------------------------------------------------#
 #                         initial metabolites list                             #
 #------------------------------------------------------------------------------#
-# check for the metabolites slot
 
-# position of all metabolites except external ones
-#met_id_pos <- grep("_?[^b]$", sapply(rsbml::species(rsbml::model(Mod)), rsbml::id))
-
-metSpIds <- lapply(rsbml::species(rsbml::model(Mod)), rsbml::id)
-metSpIds <- unlistRsbml(metSpIds)
+metabolitesList <- getSBMLSpeciesList(sbmlmod)
+missingId(metabolitesList)
+metSpIds        <- metabolitesList[["id"]]
+#nummet          <- getSBMLnumSpecies(sbmlmod)
 
 if (isTRUE(bndCond)) {
-    metSpBnd <- sapply(rsbml::species(rsbml::model(Mod)), rsbml::boundaryCondition)
+    metSpBnd <- metabolitesList[["boundaryCondition"]]
     met_id_pos <- !metSpBnd
 }
 else {
     # regular expression to identify external metabolites
     extMetRegEx <- paste("_", extMetFlag, "$", sep = "")
-
     met_id_pos  <- grep(extMetRegEx, metSpIds, invert = TRUE)
-    #met_id_pos <- grep("_b$", sapply(rsbml::species(rsbml::model(Mod)), rsbml::id), invert = TRUE)
-    #met_id_pos <- grep("(?!_b)$", sapply(rsbml::species(rsbml::model(Mod)), rsbml::id), perl = TRUE)
 }
 
 met_id_tmp <- metSpIds[met_id_pos]
-
-sapply(met_id_tmp, function(x) fatal(x, part = " metabolite ", value = "Id"))
 
 # number of metabolites
 nummet <- length(met_id_tmp)
@@ -491,10 +435,7 @@ nummet <- length(met_id_tmp)
 #                            reversibilities                                   #
 #------------------------------------------------------------------------------#
 
-# boolean vector with reversibilities, default = TRUE
-react_rev_tmp <- lapply(rsbml::reactions(rsbml::model(Mod)), rsbml::reversible)
-react_rev_tmp <- unlistRsbml(react_rev_tmp)          # all reaction id's
-react_rev_tmp <- react_rev_tmp != 0
+react_rev_tmp <- reactionsList[["reversible"]]
 
 
 #------------------------------------------------------------------------------#
@@ -531,11 +472,11 @@ hasAnnot <- FALSE
 
 for (i in 1 : numreact) {
 
-    # the notes field
-    notes <- rsbml::reactions(rsbml::model(Mod))[[i]]@notes
-    annot <- rsbml::reactions(rsbml::model(Mod))[[i]]@annotation
+    # the notes/annotations field
+    notes <- reactionsList[["notes"]][i]
+    annot <- reactionsList[["annotation"]][i]
 
-    if (length(notes) != 0) {
+    if (nchar(notes) > 0) {
 
         hasNotes    <- TRUE
         notes_field <- parseNotesReact(notes)
@@ -549,7 +490,7 @@ for (i in 1 : numreact) {
     }
     else {
 
-        if (length(annot) != 0) {
+        if (nchar(annot) > 0) {
             hasAnnot    <- TRUE
             pn <- regexpr("Pathway Name: [^<]+", annot, perl = TRUE)
             subSys[i] <- substr(annot, (pn+14), pn + ((attr(pn, "match.length"))-1))
@@ -557,15 +498,17 @@ for (i in 1 : numreact) {
 
     }
 
+
     # Check here if reactants and products lists exist, same for the stoichiometry slot
 
     # Entries for S -- the reactants
-    S_tmp <- entryforS(rsbml::reactions(rsbml::model(Mod))[[i]]@reactants)
+    S_tmp <- entryforS(reactionsList[["reactants"]][[i]])
     #print(S_tmp)
     if (is.list(S_tmp) == TRUE) {
         St[S_tmp$sj, i] <- (S_tmp$s_ji * -1)
         #St[S_tmp$sj, S_tmp$si] <- (S_tmp$s_ji * -1)
     }
+
 # Check here if S_tmp is FALSE. Should only be the case in
 # the products slot due to the exclusion of external metabolites.
 # In that case, the current reaction must be an exchange reaction.
@@ -577,12 +520,11 @@ for (i in 1 : numreact) {
 #    }
 
     # Entries for S -- the products
-    S_tmp <- entryforS(rsbml::reactions(rsbml::model(Mod))[[i]]@products)
-
-    if (is.list(S_tmp) == TRUE) {
-
+    S_tmp <- entryforS(reactionsList[["products"]][[i]])
+    if (length(S_tmp[["s_ji"]]) > 0) {
+        #print(S_tmp)
         if (isTRUE(balanceReact)) {
-            nnull <- St[S_tmp$sj, i] %in% 0
+            nnull <- St[S_tmp$sj, i] == 0
             St[S_tmp$sj, i] <- St[S_tmp$sj, i] + S_tmp$s_ji
 
             if ( any(nnull == FALSE) ) {
@@ -608,31 +550,8 @@ for (i in 1 : numreact) {
 #    }
 
     # the constraints
-    parm <- try((rsbml::model(Mod)@reactions[[i]]@kineticLaw)@parameters, silent = TRUE)
-    if (!is(parm, "try-error")) {
-#     parm <- (rsbml::model(Mod)@reactions[[i]]@kineticLaw)@parameters
-#     if (length(parm) != 0) {
-        for (p in parm) {
-
-            if (p@id == "LOWER_BOUND") {
-                #sbml@lowbnd[i] <- -1 * checkupplowbnd(p@value)
-                #sbml@lowbnd[i] <- checkupplowbnd(p@value)
-                lbnd[i] <- checkupplowbnd(p@value)
-            }
-            if (p@id == "UPPER_BOUND") {
-                #sbml@uppbnd[i] <- checkupplowbnd(p@value)
-                ubnd[i] <- checkupplowbnd(p@value)
-            }
-            if (p@id == "OBJECTIVE_COEFFICIENT") {
-                #sbml@obj_coef[i] <- p@value
-                ocof[i] <- p@value
-            }
-            # flux value?   (sbml file)
-            # reduced cost?  (sbml file)
-        }
-
-    }
-    else {
+    parm <- reactionsList[["kinetic_law"]][[i]]
+    if (is.null(parm)) {
         ubnd[i] <- def_bnd
         if (isTRUE(react_rev_tmp[i])) {
             lbnd[i] <- -1 * def_bnd
@@ -641,6 +560,21 @@ for (i in 1 : numreact) {
             lbnd[i] <- 0
         }
         ocof[i] <- 0
+    }
+    else {
+        for (j in seq(along = parm[["id"]])) {
+            if (parm[["id"]][j] == "LOWER_BOUND") {
+                lbnd[i] <- checkupplowbnd(parm[["value"]][j])
+            }
+            if (parm[["id"]][j] == "UPPER_BOUND") {
+                ubnd[i] <- checkupplowbnd(parm[["value"]][j])
+            }
+            if (parm[["id"]][j] == "OBJECTIVE_COEFFICIENT") {
+                ocof[i] <- parm[["value"]][j]
+            }
+            # flux value?   (sbml file)
+            # reduced cost?  (sbml file)
+        }
     }
 
 }
@@ -860,13 +794,14 @@ if (isTRUE(deadEndMet)) {
     }
 }
 
+
 # ---------------------------------------------------------------------------- #
 # S
 
 St <- St[SKIP_METABOLITE, , drop = FALSE]
 St <- St[ , SKIP_REACTION, drop = FALSE]
 
-sybil::S(sbml) <- St
+sybil::S(mod) <- St
 #remove(St)
 
 #sbml@S <- S
@@ -882,14 +817,14 @@ sybil::S(sbml) <- St
 
 numreact <- sum(SKIP_REACTION)
 
-sybil::met_num(sbml)   <- sum(SKIP_METABOLITE)
-sybil::react_num(sbml) <- numreact
+sybil::met_num(mod)   <- sum(SKIP_METABOLITE)
+sybil::react_num(mod) <- numreact
 
-sybil::met_single(sbml)   <- sing_met[SKIP_METABOLITE]
-sybil::react_single(sbml) <- sing_react[SKIP_REACTION]
+sybil::met_single(mod)   <- sing_met[SKIP_METABOLITE]
+sybil::react_single(mod) <- sing_react[SKIP_REACTION]
 
-sybil::met_de(sbml)   <- de_met[SKIP_METABOLITE]
-sybil::react_de(sbml) <- de_react[SKIP_REACTION]
+sybil::met_de(mod)   <- de_met[SKIP_METABOLITE]
+sybil::react_de(mod) <- de_react[SKIP_REACTION]
 
 if (isTRUE(constrMet)) {
     lbnd[sing_react] <- 0
@@ -900,9 +835,9 @@ if (isTRUE(constrMet)) {
 else {}
 
 
-sybil::lowbnd(sbml)    <- lbnd[SKIP_REACTION]
-sybil::uppbnd(sbml)    <- ubnd[SKIP_REACTION]
-sybil::obj_coef(sbml)  <- ocof[SKIP_REACTION]
+sybil::lowbnd(mod)    <- lbnd[SKIP_REACTION]
+sybil::uppbnd(mod)    <- ubnd[SKIP_REACTION]
+sybil::obj_coef(mod)  <- ocof[SKIP_REACTION]
 
 
 message("OK")
@@ -913,12 +848,12 @@ message("OK")
 #------------------------------------------------------------------------------#
 
 if (isTRUE(ignoreNoAn)) {
-    sybil::gprRules(sbml)   <- character(numreact)
-    sybil::genes(sbml)      <- vector(mode = "list", length = numreact)
-    sybil::gpr(sbml)        <- character(numreact)
-    sybil::allGenes(sbml)   <- character(numreact)
-    sybil::rxnGeneMat(sbml) <- Matrix::Matrix(FALSE, nrow = numreact, ncol = numreact, sparse = TRUE)
-    sybil::subSys(sbml)     <- Matrix::Matrix(FALSE, nrow = numreact, ncol = 1, sparse = TRUE)
+    sybil::gprRules(mod)   <- character(numreact)
+    sybil::genes(mod)      <- vector(mode = "list", length = numreact)
+    sybil::gpr(mod)        <- character(numreact)
+    sybil::allGenes(mod)   <- character(numreact)
+    sybil::rxnGeneMat(mod) <- Matrix::Matrix(FALSE, nrow = numreact, ncol = numreact, sparse = TRUE)
+    sybil::subSys(mod)     <- Matrix::Matrix(FALSE, nrow = numreact, ncol = 1, sparse = TRUE)
 }
 else {
 
@@ -957,13 +892,13 @@ else {
             }
         }
 
-        sybil::genes(sbml)      <- genes
-        sybil::gpr(sbml)        <- gpr
-        sybil::allGenes(sbml)   <- allGenes
-        sybil::gprRules(sbml)   <- rules
-        sybil::rxnGeneMat(sbml) <- rxnGeneMat
-        #sybil::subSys(sbml)     <- subSys
-        sybil::subSys(sbml)     <- sybil:::.prepareSubSysMatrix(subSys, numreact)
+        sybil::genes(mod)      <- genes
+        sybil::gpr(mod)        <- gpr
+        sybil::allGenes(mod)   <- allGenes
+        sybil::gprRules(mod)   <- rules
+        sybil::rxnGeneMat(mod) <- rxnGeneMat
+        #sybil::subSys(mod)     <- subSys
+        sybil::subSys(mod)     <- sybil:::.prepareSubSysMatrix(subSys, numreact)
 
         #sbml@gprRules <- rules
         #sbml@genes <- genes
@@ -974,16 +909,16 @@ else {
         message("OK")
     }
     else {
-        sybil::rxnGeneMat(sbml) <- Matrix::Matrix(NA, nrow = 0, ncol = 0)
+        sybil::rxnGeneMat(mod) <- Matrix::Matrix(NA, nrow = 0, ncol = 0)
         if (isTRUE(hasAnnot)) {
             #subSys(sbml)     <- subSys
-            sybil::subSys(sbml) <- sybil:::.prepareSubSysMatrix(subSys, numreact)
+            sybil::subSys(mod) <- sybil:::.prepareSubSysMatrix(subSys, numreact)
         }
         else {
-            sybil::subSys(sbml) <- Matrix::Matrix(FALSE,
-                                                  nrow = numreact,
-                                                  ncol = 1,
-                                                  sparse = TRUE)
+            sybil::subSys(mod) <- Matrix::Matrix(FALSE,
+                                                 nrow = numreact,
+                                                 ncol = 1,
+                                                 sparse = TRUE)
         }
     }
 
@@ -1004,21 +939,19 @@ react_id_tmp   <- sub( "^R[_]+",        "", react_id_tmp[SKIP_REACTION])   # rem
 #react_id_tmp   <- gsub("_APOS_",        "'",   react_id_tmp, fixed = TRUE)
 #react_id_tmp   <- gsub("_DASH_",        "-",   react_id_tmp, fixed = TRUE)
 #react_id_tmp   <- sub( "_e_?$",         "(e)", react_id_tmp)   # nicer formatting of exchange reactions
-#sybil::react_id(sbml) <- gsub("-",      "_",   react_id_tmp, fixed = TRUE)
-sybil::react_id(sbml) <- formatSBMLid(react_id_tmp)
+#sybil::react_id(mod) <- gsub("-",      "_",   react_id_tmp, fixed = TRUE)
+sybil::react_id(mod) <- formatSBMLid(react_id_tmp)
 
 
 #------------------------------------------------------------------------------#
 #                             reaction names                                   #
 #------------------------------------------------------------------------------#
 
-react_name_tmp   <- lapply(rsbml::reactions(rsbml::model(Mod)), rsbml::name)[SKIP_REACTION]
-react_name_tmp[lapply(react_name_tmp, length) == 0] <- ""
-react_name_tmp   <- unlistRsbml(react_name_tmp)
+react_name_tmp   <- reactionsList[["name"]][SKIP_REACTION]
 react_name_tmp   <- sub( "^R[_]+", "",  react_name_tmp)
 react_name_tmp   <- gsub("[_]+",   " ", react_name_tmp)
 react_name_tmp   <- sub( "\\s+$",  "",  react_name_tmp, perl = TRUE)
-sybil::react_name(sbml) <- react_name_tmp
+sybil::react_name(mod) <- react_name_tmp
 
 
 #------------------------------------------------------------------------------#
@@ -1028,34 +961,29 @@ sybil::react_name(sbml) <- react_name_tmp
 met_id_tmp     <- sub( "^[MSms]_+", "", met_id_tmp[SKIP_METABOLITE])   # remove the leading M_ or S_
 #met_id_tmp     <- gsub( "[_]+",           "_",    met_id_tmp)
 met_id_tmp     <- sub( "_([A-Za-z0-9]+)$",     "[\\1]", met_id_tmp)   # put the compartment id into square brackets
-sybil::met_id(sbml) <- gsub("-",      "_",    met_id_tmp, fixed = TRUE)
-#sybil::met_id(sbml) <- gsub("[-_]+",  "_",     met_id_tmp)
+sybil::met_id(mod) <- gsub("-",      "_",    met_id_tmp, fixed = TRUE)
+#sybil::met_id(mod) <- gsub("[-_]+",  "_",     met_id_tmp)
 
 
 #------------------------------------------------------------------------------#
 #                        metabolite compartments                               #
 #------------------------------------------------------------------------------#
 
-met_comp_tmp   <- lapply(rsbml::species(rsbml::model(Mod))[met_id_pos], rsbml::compartment)[SKIP_METABOLITE]
+met_comp_tmp <- metabolitesList[["compartment"]][met_id_pos][SKIP_METABOLITE]
 
-# check weather all Id's are there.
-sapply(met_comp_tmp, function(x) fatal(x, part = " metabolite ", value = "compartment"))
-
-sybil::met_comp(sbml) <- match(met_comp_tmp, sybil::mod_compart(sbml))
+sybil::met_comp(mod) <- match(met_comp_tmp, sybil::mod_compart(mod))
 
 
 #------------------------------------------------------------------------------#
 #                            metabolite names                                  #
 #------------------------------------------------------------------------------#
 
-met_name_tmp   <- lapply(rsbml::species(rsbml::model(Mod))[met_id_pos], rsbml::name)[SKIP_METABOLITE]
-met_name_tmp[lapply(met_name_tmp, length) == 0] <- ""
-met_name_tmp   <- unlistRsbml(met_name_tmp)
+met_name_tmp <- metabolitesList[["name"]][met_id_pos][SKIP_METABOLITE]
 met_name_tmp   <- sub( "^[MS]?[_]+", "",  met_name_tmp)
 met_name_tmp   <- gsub("[-_]+",   "-", met_name_tmp)
 met_name_tmp   <- sub("-$",       "",  met_name_tmp)
 met_name_tmp   <- sub( "\\s+$",   "",  met_name_tmp, perl = TRUE)
-sybil::met_name(sbml) <- met_name_tmp
+sybil::met_name(mod) <- met_name_tmp
 
 
 #------------------------------------------------------------------------------#
@@ -1066,7 +994,7 @@ sybil::met_name(sbml) <- met_name_tmp
 
 sybilVersion <- packageDescription("sybil", fields = "Version")
 if (compareVersion(sybilVersion, "1.1.3") == -1) {
-    sybil::rhs(sbml) <- numeric(sybil::met_num(sbml))
+    sybil::rhs(mod) <- numeric(sybil::met_num(mod))
 }
 
 
@@ -1077,10 +1005,10 @@ if (compareVersion(sybilVersion, "1.1.3") == -1) {
 # check up with the matlab version
 # check the reversibilities
 react_rev_tmp <- react_rev_tmp[SKIP_REACTION]
-isrev <- which(sybil::lowbnd(sbml) < 0 & sybil::uppbnd(sbml) > 0)
+isrev <- which(sybil::lowbnd(mod) < 0 & sybil::uppbnd(mod) > 0)
 #print(isrev)
-react_rev_tmp[isrev]   <- TRUE
-sybil::react_rev(sbml) <- react_rev_tmp
+react_rev_tmp[isrev]  <- TRUE
+sybil::react_rev(mod) <- react_rev_tmp
 
 message("OK")
 
@@ -1091,7 +1019,7 @@ message("OK")
 
 message("validating object ... ", appendLF = FALSE)
 
-check <- validObject(sbml, test = TRUE)
+check <- validObject(mod, test = TRUE)
 
 if (check != TRUE) {
     msg <- paste("Validity check failed:", check, sep = "\n    ")
@@ -1105,7 +1033,10 @@ message("OK")
 #                                return the model                              #
 #------------------------------------------------------------------------------#
 
+delSBMLmodel(sbmlmod)
+closeSBMLfile(sbmldoc)
+
 # Returns sbml, an object of the class modelorg
-return(sbml)
+return(mod)
 
 }

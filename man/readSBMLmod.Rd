@@ -13,7 +13,7 @@
 \usage{
   readSBMLmod(filename, description,
               def_bnd = SYBIL_SETTINGS("MAXIMUM"),
-              checkrsbml = TRUE,
+              validateSBML = FALSE,
               extMetFlag = "b",
               bndCond = TRUE,
               ignoreNoAn = FALSE,
@@ -36,16 +36,16 @@
     Default: \code{filename}.
   }
   \item{def_bnd}{
-    Single numeric value. Absolute value for uppper and lower bounds for
+    Single numeric value. Absolute value for upper and lower bounds for
     reaction contraints -- if they are missing in the SBML file.\cr
     Default: \code{MAXIMUM(SYBIL_SETTINGS)}.
   }
-  \item{checkrsbml}{
-    Boolean: check the xml file.\cr
+  \item{validateSBML}{
+    Boolean: validate the xml file.\cr
     Default: \code{TRUE}.
   }
   \item{extMetFlag}{
-    A single character string how external metabolites were itdentified. If the
+    A single character string how external metabolites were identified. If the
     metabolite id ends in \code{"_extMetFlag"}, the corresponding metabolite is
     considered to be external and will be removed if \code{bndCond} is set to
     \code{FALSE}.\cr
@@ -62,15 +62,15 @@
     Default: \code{FALSE}.
   }
   \item{mergeMet}{
-    Boolean: if set to \code{TRUE}, metabolites used more than once as reactand
+    Boolean: if set to \code{TRUE}, metabolites used more than once as reactant
     or product in a particular reaction are added up, see details below. If set
     to \code{FALSE}, the last value is used without warning.\cr
     Default: \code{TRUE}.
   }
   \item{balanceReact}{
-    Boolean: if set to \code{TRUE}, metabolites used as reactand and product in
+    Boolean: if set to \code{TRUE}, metabolites used as reactant and product in
     a particular reaction at the same time are balanced, see details below. If
-    set to \code{FALSE} the last value is used without warning (reactands before
+    set to \code{FALSE} the last value is used without warning (reactants before
     products).\cr
     Default: \code{TRUE}.
   }
@@ -118,15 +118,15 @@
 }
 
 \details{
-  The package \code{rsbml} is used to read an SBML file and to collect
+  The library \code{libSBML} is used to read an SBML file and to collect
   the information in an object of the class \code{\link[sybil]{modelorg}}.
 
   If a metabolite is used more than once as product or
-  reactand of a particular reaction, it is merged:
+  reactant of a particular reaction, it is merged:
   \code{a + (2) a} is converted to \code{(3) a}
   and a warning will be given.
 
-  If a metabolite is used first as reactand and then as
+  If a metabolite is used first as reactant and then as
   product of a particular reaction, the reaction is
   balanced:
       \code{(2) b + a -> b + c}
@@ -159,7 +159,7 @@
   none are found.
 
   The algorithm to find dead end metabolites works in a quite similar way, but
-  not in the binary version of the stroichiometric matrix. Here, metabolite
+  not in the binary version of the stoichiometric matrix. Here, metabolite
   \code{i} is considered as dead end, if it is for example produced by reaction
   \code{j} but not used by any other reaction \code{k}.
 }
@@ -191,20 +191,23 @@
   \emph{Nat Protoc} \bold{6}, 1290--1307.
 }
 
-\author{Gabriel Gelius-Dietrich}
+\author{
+  Gabriel Gelius-Dietrich
+}
 
 \note{
   The function \code{readSBMLmod} makes use of the library
-  \code{libsbml} (\url{http://www.sbml.org}) and of the R
-  package \code{rsbml} (\code{\link[rsbml]{rsbml_read}}).
+  \code{libSBML} (\url{http://www.sbml.org}).
 }
 
 \seealso{
-  Package \code{rsbml} (\code{\link[rsbml]{rsbml_read}})
+  \code{\link{validateSBMLdocument}}
 }
 
 \examples{
-  \dontrun{mod <- readSBMLmod("ecoli_core_model.xml", bndCond = FALSE)}
+  dir  <- system.file(package = "sybilSBML", "extdata")
+  file <- file.path(dir, "ecoli_core_model.xml")
+  mod  <- readSBMLmod(file, bndCond = FALSE)
 }
 
 \keyword{ IO }
