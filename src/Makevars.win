@@ -1,11 +1,7 @@
-PKG_CPPFLAGS=-g -D_R_=1 -DUSE_R=1 -I"$(LIB_SBML)/include"
+PKG_CPPFLAGS= -D_R_=1 -DUSE_R=1 -I"$(LIB_SBML)/include"
 
-ifeq "$(WIN)" "64"
-PKG_LIBS=-L"$(LIB_SBML)/bin" -lxml2 -lzlib1 -lbz2 -lsbml -lm
-else
-PKG_LIBS=-L"$(LIB_SBML)/bin" -lxml2 -lzlib1 -lbzip2 -lsbml -lm
-endif
+PKG_LIBS = -lxml2 -L"$(LIB_SBML)/bin" -lsbml
 
 all: $(SHLIB)
 	mkdir -p "$(R_PACKAGE_DIR)/libs$(R_ARCH)"
-	cp $(LIB_SBML)/bin/*.dll "$(R_PACKAGE_DIR)\libs$(R_ARCH)"
+	cp "$(LIB_SBML)/bin/libsbml.dll" "$(R_PACKAGE_DIR)\libs$(R_ARCH)"

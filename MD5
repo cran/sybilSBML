@@ -1,4 +1,4 @@
-3b160ffbb4f56a35d4f196e8b2aca6dd *DESCRIPTION
+d43d7ef93df7f98fdb1f519121beaf97 *DESCRIPTION
 3268517cec94787aba0b70cafad54625 *NAMESPACE
 c1e1d1d86c2c3d08106357980d1e66ce *R/generics.R
 39e4a283f639e1065a31bd7827b58986 *R/readSBMLmod.R
@@ -8,15 +8,15 @@ d9ab3d1aa0fdb80b29552bf721a2414d *R/sybilSBML.R
 197524f5ad50b1fcc9776b55a315fff1 *R/uglyHack.R
 5d62618956ae75a6c3e5a13415ecf957 *R/zzz.R
 1941f423a0954b05e9158e5f71291110 *cleanup
-dd431cc9d69e986e6d5d395b875c5ad9 *configure
-54f26084c3a54d373fe30c0ed6930733 *configure.ac
+8aeff3a659e860580a14caae320276f2 *configure
+d5d97bc84191f9c5939b099e29dc8ab0 *configure.ac
 d41d8cd98f00b204e9800998ecf8427e *configure.win
-93f28d6bb6c19edc68b907f2c7953bbf *inst/INSTALL
-9ff8a796445138cb370ed5afac0f3d66 *inst/NEWS.Rd
+8c13a9b5e6916ce99bc6a9c58f82f900 *inst/INSTALL
+52f202048f3b87feb768047258fda492 *inst/NEWS.Rd
 6412a7092fc34de88980573de2111c42 *inst/README
 07360700b3d77f90fd6de3804381f023 *inst/doc/sybilSBML.R
 13d1bc52ae302d849560d9c52a709b1b *inst/doc/sybilSBML.Rnw
-9506f2c219c494f57f7d7569ac5f4448 *inst/doc/sybilSBML.pdf
+466f37b7294468bfa7d59a681b9c7eee *inst/doc/sybilSBML.pdf
 7d0f88a4557e54ca5d771dcd00befcd6 *inst/extdata/ecoli_core_model.xml
 cf13d5952d18d3fb145c1c67483f7741 *man/closeSBMLfile.Rd
 c573f8167756bbf17bb7cf60fdaa2934 *man/delSBMLmodel.Rd
@@ -40,7 +40,7 @@ ee905ea4399d3c2082044281c41bb6fb *man/readSBMLmod.Rd
 987c44b77083081880a542eedce3f9e7 *man/validateSBMLdocument.Rd
 614ca964b1a31360eb5a6ebe62d82bfe *man/versionLibSBML.Rd
 e4cff70c399a10f65c797ddb9bfc2f65 *src/Makevars.in
-f34641836e46b92c65d2c2992a120310 *src/Makevars.win
+4260ba5684d4a5756edb88cfb3b39567 *src/Makevars.win
 c135a99acaca388f4ca117344a719db2 *src/init.c
 e93f2b3664ed63024c9bcf5f888147cd *src/sbml.c
 8e343f5db8df409e3d5954c93826ff31 *src/sbml.h

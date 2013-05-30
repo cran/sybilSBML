@@ -7,6 +7,15 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.3 2013-05-30}{
+  \itemize{
+    \item some improvements in \file{Makevars.win} suggested by Brian D. Ripley
+          and Uwe Ligges
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 2.0.2 2013-05-28}{
   \itemize{
     \item removed \CRANpkg{glpkAPI} from Suggests in the \file{DESCRIPTION} file
