@@ -27,6 +27,10 @@
     character vector containing the compartment id's. If no id is given for a
     particular compartment, the corresponding value is set to \code{"no_id"}.
   }
+  \item{name}{
+    character vector containing the reaction names. If 
+    not available, the value is set to the empty string \code{""}.
+  }
   \item{outside}{
     character vector containing the outside argument of the compartments. If 
     not available, the value is set to the empty string \code{""}.

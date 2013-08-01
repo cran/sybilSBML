@@ -681,11 +681,12 @@ SEXP getSBMLunitDefinitionsList(SEXP sbmlmod) {
 /* get list of compartments */
 SEXP getSBMLCompartList(SEXP sbmlmod) {
 
-    SEXP out     = R_NilValue;
-    SEXP class   = R_NilValue;
-    SEXP listv   = R_NilValue;
-    SEXP compid  = R_NilValue;
-    SEXP compout = R_NilValue;
+    SEXP out      = R_NilValue;
+    SEXP class    = R_NilValue;
+    SEXP listv    = R_NilValue;
+    SEXP compid   = R_NilValue;
+    SEXP compname = R_NilValue;
+    SEXP compout  = R_NilValue;
 
     unsigned int nc, i;
 
@@ -698,8 +699,9 @@ SEXP getSBMLCompartList(SEXP sbmlmod) {
     nc = Model_getNumCompartments(R_ExternalPtrAddr(sbmlmod));
     
     if (nc > 0) {
-        PROTECT(compid  = Rf_allocVector(STRSXP, nc));
-        PROTECT(compout = Rf_allocVector(STRSXP, nc));
+        PROTECT(compid   = Rf_allocVector(STRSXP, nc));
+        PROTECT(compname = Rf_allocVector(STRSXP, nc));
+        PROTECT(compout  = Rf_allocVector(STRSXP, nc));
 
         for (i = 0; i < nc; i++) {
             /* clel = (Compartment_t *) ListOf_get(cl, i); */
@@ -711,6 +713,13 @@ SEXP getSBMLCompartList(SEXP sbmlmod) {
             else {
                 SET_STRING_ELT(compid, i, Rf_mkChar("no_id"));
             }
+            /* name */
+            if (Compartment_isSetName(clel)) {
+                SET_STRING_ELT(compname, i, Rf_mkChar(Compartment_getName(clel)));
+            }
+            else {
+                SET_STRING_ELT(compname, i, Rf_mkChar(""));
+            }
             /* outside */
             if (Compartment_isSetOutside(clel)) {
                 SET_STRING_ELT(compout, i, Rf_mkChar(Compartment_getOutside(clel)));
@@ -720,13 +729,15 @@ SEXP getSBMLCompartList(SEXP sbmlmod) {
             }
         }
     
-        PROTECT(out = Rf_allocVector(VECSXP, 2));
+        PROTECT(out = Rf_allocVector(VECSXP, 3));
         SET_VECTOR_ELT(out, 0, compid);
-        SET_VECTOR_ELT(out, 1, compout);
+        SET_VECTOR_ELT(out, 1, compname);
+        SET_VECTOR_ELT(out, 2, compout);
 
-        PROTECT(listv = Rf_allocVector(STRSXP, 2));
+        PROTECT(listv = Rf_allocVector(STRSXP, 3));
         SET_STRING_ELT(listv, 0, Rf_mkChar("id"));
-        SET_STRING_ELT(listv, 1, Rf_mkChar("outside"));
+        SET_STRING_ELT(listv, 1, Rf_mkChar("name"));
+        SET_STRING_ELT(listv, 2, Rf_mkChar("outside"));
 
         Rf_setAttrib(out, R_NamesSymbol, listv);
 
@@ -735,7 +746,7 @@ SEXP getSBMLCompartList(SEXP sbmlmod) {
         SET_STRING_ELT(class, 0, Rf_mkChar("compartments_list"));
         Rf_classgets(out, class);
 
-        UNPROTECT(5);
+        UNPROTECT(6);
     }
     else {
         out = R_NilValue;

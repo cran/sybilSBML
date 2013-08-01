@@ -1,4 +1,4 @@
-AC_INIT([sybilSBML], [2.0.3], [geliudie@uni-duesseldorf.de])
+AC_INIT([sybilSBML], [2.0.4], [geliudie@uni-duesseldorf.de])
 
 dnl # --------------------------------------------------------------------
 dnl # global (environment) variables
@@ -203,7 +203,8 @@ if test [ "$ARGS_OK" = "FALSE" ] ; then
 
     fi
 
-    PKG_LIBS="${PKG_LIBS} -lxml2 -lz -lpthread -licucore -lm -lz -lbz2 -lsbml -lstdc++ -lm"
+    dnl # PKG_LIBS="${PKG_LIBS} -lxml2 -lz -lpthread -licucore -lm -lz -lbz2 -lsbml -lstdc++ -lm"
+    PKG_LIBS="${PKG_LIBS} -lxml2 -lsbml"
 
     ARGS_OK="TRUE"
 

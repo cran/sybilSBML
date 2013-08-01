@@ -7,6 +7,17 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.4 2013-08-01}{
+  \itemize{
+    \item function \code{getSBMLCompartList()} returns also the compartment
+          names, if given
+    \item fixed a bug in file \file{configure.ac} which occurs when
+          \code{pkg-config} is not used
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 2.0.3 2013-05-30}{
   \itemize{
     \item some improvements in \file{Makevars.win} suggested by Brian D. Ripley
