@@ -58,7 +58,7 @@ required. The file looks like this:
 
 PKG_CPPFLAGS= -D_R_=1 -DUSE_R=1 -I"$(LIB_SBML)/include"
 
-PKG_LIBS = -lxml2 -L"$(LIB_SBML)/bin" -lsbml
+PKG_LIBS = -L"$(LIB_SBML)/bin" -lsbml
 
 all: $(SHLIB)
 	mkdir -p "$(R_PACKAGE_DIR)/libs$(R_ARCH)"

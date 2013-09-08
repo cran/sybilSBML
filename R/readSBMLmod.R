@@ -302,7 +302,7 @@ if (isTRUE(validateSBML)) {
             message("found errors, trying to fix ... ", appendLF = FALSE)
 
             closeSBMLfile(sbmldoc)
-            hackedModel <- sybilSBML:::.uglyHack(filename)
+            hackedModel <- .uglyHack(filename)
             sbmldoc <- openSBMLfile(hackedModel)
             unlink(hackedModel)
             remove(hackedModel)
@@ -392,6 +392,11 @@ sybil::mod_desc(mod) <- mdesc
 #------------------------------------------------------------------------------#
 
 compartmentsList        <- getSBMLCompartList(sbmlmod)
+
+if (is.null(compartmentsList)) {
+    stop("file '", filename, "' has an empty listOfCompartments section")
+}
+
 missingId(compartmentsList)
 sybil::mod_compart(mod) <- compartmentsList[["id"]]
 
@@ -401,6 +406,11 @@ sybil::mod_compart(mod) <- compartmentsList[["id"]]
 #------------------------------------------------------------------------------#
 
 reactionsList <- getSBMLReactionsList(sbmlmod)
+
+if (is.null(reactionsList)) {
+    stop("file '", filename, "' has an empty listOfReactions section")
+}
+
 missingId(reactionsList)
 react_id_tmp  <- reactionsList[["id"]]
 numreact      <- getSBMLnumReactions(sbmlmod)
@@ -411,6 +421,11 @@ numreact      <- getSBMLnumReactions(sbmlmod)
 #------------------------------------------------------------------------------#
 
 metabolitesList <- getSBMLSpeciesList(sbmlmod)
+
+if (is.null(metabolitesList)) {
+    stop("file '", filename, "' has an empty listOfSpecies section")
+}
+
 missingId(metabolitesList)
 metSpIds        <- metabolitesList[["id"]]
 #nummet          <- getSBMLnumSpecies(sbmlmod)
@@ -984,18 +999,6 @@ met_name_tmp   <- gsub("[-_]+",   "-", met_name_tmp)
 met_name_tmp   <- sub("-$",       "",  met_name_tmp)
 met_name_tmp   <- sub( "\\s+$",   "",  met_name_tmp, perl = TRUE)
 sybil::met_name(mod) <- met_name_tmp
-
-
-#------------------------------------------------------------------------------#
-#                             right hand site                                  #
-#------------------------------------------------------------------------------#
-
-# add a right hand site to the model, all zeros - the null space: Sv = 0
-
-sybilVersion <- packageDescription("sybil", fields = "Version")
-if (compareVersion(sybilVersion, "1.1.3") == -1) {
-    sybil::rhs(mod) <- numeric(sybil::met_num(mod))
-}
 
 
 #------------------------------------------------------------------------------#

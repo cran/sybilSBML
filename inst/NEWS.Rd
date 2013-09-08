@@ -7,6 +7,16 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.5 2013-09-08}{
+  \itemize{
+    \item function \code{readSBMLmod} returns an error if the input file does
+          not contain a -- or contains an empty -- \code{listOfReactions},
+          \code{listOfSpecies} or \code{listOfCompartments} section.
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 2.0.4 2013-08-01}{
   \itemize{
     \item function \code{getSBMLCompartList()} returns also the compartment

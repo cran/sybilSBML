@@ -1,5 +1,6 @@
 useDynLib(sybilSBML)
 
+import(methods)
 import(sybil)
 import(Matrix)
 

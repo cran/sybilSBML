@@ -142,10 +142,10 @@ setMethod("show", signature(object = "sbmlError"),
 
         cat("validation of SBML file ", sbmlFileName(object), "\n\n", sep = "")
         
-        sybilSBML:::.printErrors(sbmlInfos(object), "Infos")
-        sybilSBML:::.printErrors(sbmlWarnings(object), "Warnings")
-        sybilSBML:::.printErrors(sbmlErrors(object), "Errors")
-        sybilSBML:::.printErrors(sbmlFatals(object), "Fatals")
+        .printErrors(sbmlInfos(object), "Infos")
+        .printErrors(sbmlWarnings(object), "Warnings")
+        .printErrors(sbmlErrors(object), "Errors")
+        .printErrors(sbmlFatals(object), "Fatals")
         
     }
 )
@@ -164,7 +164,7 @@ setMethod("length", signature(x = "sbmlError"),
 setMethod("printSlot", signature(object = "sbmlError", ws = "character"),
     function(object, ws) {
 
-        cmd <- paste("sybilSBML:::.printErrors(sbml", ws, "(object), '", ws, "')", sep = "")
+        cmd <- paste(".printErrors(sbml", ws, "(object), '", ws, "')", sep = "")
         eval(parse(text = cmd))
         
     }
