@@ -1,4 +1,4 @@
-AC_INIT([sybilSBML], [2.0.5], [geliudie@uni-duesseldorf.de])
+AC_INIT([sybilSBML], [2.0.6], [geliudie@uni-duesseldorf.de])
 
 dnl # --------------------------------------------------------------------
 dnl # global (environment) variables
@@ -77,23 +77,25 @@ dnl # include and library directories
 if test [ "$ARGS_OK" = "FALSE" ] ; then
     AC_PATH_PROG([PKG_CONFIG], [pkg-config], [], [$PATH:/usr/local/bin])
 
-    if "${PKG_CONFIG}" --exists libsbml; then
+    if test [ "${PKG_CONFIG}" != "" ] ; then
+        if "${PKG_CONFIG}" --exists libsbml; then
+
+            SBML_LIBS=`${PKG_CONFIG} --libs libsbml`    
+            SBML_CFLAGS=`${PKG_CONFIG} --cflags libsbml`    
     
-        SBML_LIBS=`${PKG_CONFIG} --libs libsbml`    
-        SBML_CFLAGS=`${PKG_CONFIG} --cflags libsbml`    
-    
-        if test [ -z "$SBML_LIBS" -a -z "$SBML_CFLAGS" ] ; then
-            AC_MSG_NOTICE([can not get information about libSBML from pkg-config])
+            if test [ -z "$SBML_LIBS" -a -z "$SBML_CFLAGS" ] ; then
+                AC_MSG_NOTICE([can not get information about libSBML from pkg-config])
+            else
+                AC_MSG_NOTICE([set compile and link flags according to pkg-config])
+                AC_MSG_NOTICE([compile flags are $SBML_CFLAGS])
+                AC_MSG_NOTICE([link flags are $SBML_LIBS])
+                PKG_LIBS="${SBML_LIBS}"
+                PKG_CPPFLAGS="${SBML_CFLAGS}"
+                ARGS_OK="TRUE"
+            fi
         else
-            AC_MSG_NOTICE([set compile and link flags according to pkg-config])
-            AC_MSG_NOTICE([compile flags are $SBML_CFLAGS])
-            AC_MSG_NOTICE([link flags are $SBML_LIBS])
-            PKG_LIBS="${SBML_LIBS}"
-            PKG_CPPFLAGS="${SBML_CFLAGS}"
-            ARGS_OK="TRUE"
+            AC_MSG_NOTICE([pkg-config file for libSBML is not available])
         fi
-    else
-        AC_MSG_NOTICE([pkg-config file for libSBML is not available])
     fi
 fi
 

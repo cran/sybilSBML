@@ -1,8 +1,8 @@
 useDynLib(sybilSBML)
 
 import(methods)
-import(sybil)
 import(Matrix)
+import(sybil)
 
 exportClass(
 sbmlPtr,
