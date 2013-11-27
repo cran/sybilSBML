@@ -1,4 +1,4 @@
-70ca54f0fde2e057fc50ee2d7b0ec425 *DESCRIPTION
+c41ec458e7e4f64176777064f0b86dd4 *DESCRIPTION
 b8e96ea14c5bd71b3d532ff3ea744aaf *NAMESPACE
 c1e1d1d86c2c3d08106357980d1e66ce *R/generics.R
 164a252301191135c507bc80fe85de0e *R/readSBMLmod.R
@@ -9,15 +9,16 @@ d9ab3d1aa0fdb80b29552bf721a2414d *R/sybilSBML.R
 5d62618956ae75a6c3e5a13415ecf957 *R/zzz.R
 781bf967317dff1847b52babfb1c914d *build/vignette.rds
 1941f423a0954b05e9158e5f71291110 *cleanup
-32b83a989cd731abed904bb3942b3ac3 *configure
-7fea7e25aa65e8b1202a84afdbca4cba *configure.ac
+e28830ccf7c6ffe2831ebfb2ea463119 *configure
+0691068ccb7c13670ab2ae9854f89dab *configure.ac
 d41d8cd98f00b204e9800998ecf8427e *configure.win
+62c169e52acd39dd763703bab880c30d *inst/CITATION
 097b169487ed1cf044fd2b2b07b3f0e4 *inst/INSTALL
-2417012394b64f92f96c0f1b80dc6e42 *inst/NEWS.Rd
+dcaf98e843829ec3874da37ecf7a04be *inst/NEWS.Rd
 6412a7092fc34de88980573de2111c42 *inst/README
 07360700b3d77f90fd6de3804381f023 *inst/doc/sybilSBML.R
 13d1bc52ae302d849560d9c52a709b1b *inst/doc/sybilSBML.Rnw
-a09143e21dc7174c9f690f44c6c4291f *inst/doc/sybilSBML.pdf
+c7880a9b78eb67c3ca564d3a7339ec3d *inst/doc/sybilSBML.pdf
 7d0f88a4557e54ca5d771dcd00befcd6 *inst/extdata/ecoli_core_model.xml
 cf13d5952d18d3fb145c1c67483f7741 *man/closeSBMLfile.Rd
 c573f8167756bbf17bb7cf60fdaa2934 *man/delSBMLmodel.Rd

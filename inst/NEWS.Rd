@@ -7,6 +7,14 @@
 \newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 % ---------------------------------------------------------------------------- %
+\section{Changes in version 2.0.7 2013-11-27}{
+  \itemize{
+    \item added file \code{CITATION}
+  }
+}
+
+
+% ---------------------------------------------------------------------------- %
 \section{Changes in version 2.0.6 2013-10-26}{
   \itemize{
     \item a minor bugfix in file \file{configure.ac}
