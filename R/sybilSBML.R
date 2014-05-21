@@ -45,7 +45,7 @@ openSBMLfile <- function(fname, ptrtype = "sbml_doc") {
     }
 
     sbmlf <- .Call("readSBMLfile", PACKAGE = "sybilSBML",
-                   as.character(fname),
+                   as.character(normalizePath(fname)[1]),
                    as.character(ptrtype)
              )
 

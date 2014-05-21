@@ -1,4 +1,4 @@
-AC_INIT([sybilSBML], [2.0.7], [geliudie@uni-duesseldorf.de])
+AC_INIT([sybilSBML], [2.0.8], [geliudie@uni-duesseldorf.de])
 
 dnl # --------------------------------------------------------------------
 dnl # global (environment) variables
