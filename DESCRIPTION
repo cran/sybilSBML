@@ -1,23 +1,23 @@
 Package: sybilSBML
 Type: Package
-Title: SBML Integration in Package Sybil
-Version: 2.0.10
-Date: 2015-07-03
+Title: SBML Integration in Package 'Sybil'
+Version: 2.0.11
+Date: 2016-06-06
 Authors@R: c(person(c("C.", "Jonathan"), "Fritzemeier", role = c("cre", "ctb"), email = "clausjonathan.fritzemeier@uni-duesseldorf.de"),
 			 person("Gabriel", "Gelius-Dietrich", role = c("aut", "ctb")),
              person("Deya", "Alzoubi", role = "ctb"))
 Maintainer: C. Jonathan Fritzemeier <clausjonathan.fritzemeier@uni-duesseldorf.de>
-Depends: R (>= 2.14.2), Matrix, sybil (>= 1.2.4)
+Depends: R (>= 2.14.2), Matrix, sybil (>= 2.0.0)
 Imports: methods
-Description: SBML (Systems Biology Markup Language) integration in sybil. Many constraint based metabolic models are published in SBML format (*.xml). Herewith is the ability to read and check SBML files in sybil provided.
+Description: 'SBML' (Systems Biology Markup Language) integration in 'sybil'. Many constraint based metabolic models are published in 'SBML' format ('*.xml'). Herewith is the ability to read and check 'SBML' files in 'sybil' provided.
 License: GPL-3 | file LICENSE
 LazyLoad: yes
 Collate: generics.R sbmlPtrClass.R sbmlErrorClass.R sybilSBML.R
         uglyHack.R readSBMLmod.R zzz.R
-Packaged: 2015-07-06 08:41:58 UTC; jonathan
+Packaged: 2016-06-06 12:26:26 UTC; jonathan
 Author: C. Jonathan Fritzemeier [cre, ctb],
   Gabriel Gelius-Dietrich [aut, ctb],
   Deya Alzoubi [ctb]
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2015-07-20 18:19:57
+Date/Publication: 2016-06-06 20:23:40
