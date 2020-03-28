@@ -5,6 +5,39 @@
 \encoding{UTF-8}
 
 \newcommand{\CRANpkg}{\href{https://cran.r-project.org/package=#1}{\pkg{#1}}}
+% ---------------------------------------------------------------------------- %
+\section{Changes in version 3.0.4 - 3.1.2 2020-03-27}{
+  \itemize{
+    \item Maintainer change.
+    \item Changes to be able to build package without libSBML FBC and Groups
+    plugins. In that case, FBC-constraints and groups in the SBML model will
+    be ignored. Added functions \code{isAvailableFBCPlugin} and
+    \code{isAvailableGroupsPlugin}.
+    \item Corrections for CRAN, where && or || encountered arguments of length > 1.
+    \item Fix for CRAN issue: 'config' variable 'CPP' is deprecated.
+    \item Fix for CRAN issue: too many states (abstraction error?).
+    \item Fix for CRAN issue, where a terminating nul character may be written
+    past the end of the destination in function \code{exportSBML}.
+    \item Fix for CRAN issue, where example file modified user's home
+    filespace.
+  }
+}
+
+% ---------------------------------------------------------------------------- %
+\section{Changes in version 3.0.3 2018-01-02}{
+  \itemize{
+    \item Added support for the groups plugin of SBML. Now the \code{subSys} 
+    (sub system) is read and written from/to the groups plugin. This is necessary 
+    for some newer models.
+  }
+}
+
+% ---------------------------------------------------------------------------- %
+\section{Changes in version 3.0.2 2017-10-24}{
+  \itemize{
+    \item Removed bug when trying to write models with NA in, e.g. \code{met_attr}.
+  }
+}
 
 % ---------------------------------------------------------------------------- %
 \section{Changes in version 3.0.1 2016-12-16}{

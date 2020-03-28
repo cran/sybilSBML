@@ -1,5 +1,4 @@
 ### R code from vignette source 'sybilSBML.Rnw'
-### Encoding: UTF-8
 
 ###################################################
 ### code chunk number 1: sybilSBML.Rnw:85-87 (eval = FALSE)

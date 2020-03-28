@@ -1,4 +1,10 @@
-AC_INIT([sybilSBML], [3.0.0], [clausjonathan.fritzemeier@uni-duesseldorf.de])
+AC_INIT([sybilSBML], [3.1.2], [mayo.roettger@hhu.de])
+
+dnl # --------------------------------------------------------------------
+dnl # template config.h.in
+dnl # --------------------------------------------------------------------
+AC_CONFIG_HEADERS([src/config.h])
+
 
 dnl # --------------------------------------------------------------------
 dnl # global (environment) variables
@@ -21,18 +27,11 @@ fi
 
 dnl # GNU R default settings
 CC=`"${R_HOME}/bin/R" CMD config CC`
-CPP=`"${R_HOME}/bin/R" CMD config CPP`
+#CPP=`"${R_HOME}/bin/R" CMD config CPP`
 CFLAGS=`"${R_HOME}/bin/R" CMD config CFLAGS`
 CPPFLAGS=`"${R_HOME}/bin/R" CMD config CPPFLAGS`
 AC_PROG_CC
 AC_PROG_CPP
-
-
-dnl # --------------------------------------------------------------------
-dnl # template config.h.in
-dnl # --------------------------------------------------------------------
-
-dnl # AC_CONFIG_HEADERS([src/config.h])
 
 
 dnl # --------------------------------------------------------------------
@@ -222,7 +221,7 @@ dnl # --------------------------------------------------------------------
 dnl # check header and library
 dnl # --------------------------------------------------------------------
 
-LIBS="${PKG_LIBS}"
+LIBS="${LIBS} ${PKG_LIBS}"
 CFLAGS="${CFLAGS} ${PKG_CFLAGS}"
 CPPFLAGS="${CPPFLAGS} ${PKG_CPPFLAGS}"
 
@@ -230,7 +229,6 @@ AC_CHECK_HEADER([sbml/SBMLTypes.h], ,
     AC_MSG_ERROR([Could not find SBMLTypes.h:
       sybilSBML requires libSBML from http://www.sbml.org/.
       use --with-sbml-include or PKG_CPPFLAGS to specify the include path.]))
-
 
 AC_SEARCH_LIBS([readSBML], [sbml], ,
     AC_MSG_ERROR([Could not link to libSBML:
@@ -240,32 +238,37 @@ AC_CHECK_LIB([sbml], [readSBML], ,
     AC_MSG_ERROR([Could not link to libSBML:
       use --with-sbml-lib or PKG_LIBS to specify the library path and the libraries to pass to the linker.]))
 
-AC_CHECK_HEADER([sbml/packages/fbc/common/FbcExtensionTypes.h], ,
- AC_MSG_ERROR([Could not find specific FBC header of libSBML:
-      make sure your libSBML version is >= 5.13.]),
+AC_CHECK_HEADERS([sbml/packages/fbc/common/FbcExtensionTypes.h], ,
+ AC_MSG_WARN([Could not find specific FBC header of libSBML:
+      make sure your libSBML version is >= 5.18 and including the FBC package.]),
+      [#include <sbml/SBMLTypes.h>])
+
+AC_CHECK_HEADERS([sbml/packages/groups/common/GroupsExtensionTypes.h], AC_DEFINE([HAVE_GROUPS_PLUGIN], [1], [define if Groups plugin is available]),
+ AC_MSG_WARN([Could not find specific groups package header of libSBML:
+      make sure your libSBML version is >= 5.18 and including the groups package.]),
       [#include <sbml/SBMLTypes.h>])
 
 #AC_CHECK_LIB([sbml], [SBMLExtensionRegistry_getRegisteredPackages], ,
 #    AC_MSG_ERROR([Could not find specific FBC function of libSBML:
-#		make sure your libSBML version is >= 5.13.]))
+#		make sure your libSBML version is >= 5.16.]))
 
-AC_CHECK_FUNCS([SBase_getPlugin SBMLExtensionRegistry_getRegisteredPackages GeneProductAssociation_setAssociation FbcReactionPlugin_getLowerFluxBound], ,
-	AC_MSG_ERROR([Could not find specific FBC function of libSBML:
-		make sure your libSBML version is >= 5.13.]))
+AC_CHECK_FUNCS([SBase_getPlugin SBMLExtensionRegistry_getRegisteredPackages GeneProductAssociation_setAssociation FbcReactionPlugin_getLowerFluxBound], AC_DEFINE([HAVE_FBC_PLUGIN], [1], [define if FBC plugin is available]),
+	AC_MSG_WARN([Could not find specific FBC function of libSBML:
+		make sure your libSBML version is >= 5.18 and including the FBC package.]))
 
 #AC_SEARCH_LIBS([SBase_getPlugin], [sbml], ,
 #    AC_MSG_ERROR([Could not find specific FBC function of libSBML:
-#      make sure your libSBML version is >= 5.13.]))
+#      make sure your libSBML version is >= 5.16.]))
 
 #AC_SEARCH_LIBS([SBMLExtensionRegistry_getRegisteredPackages], [sbml], ,
 #    AC_MSG_ERROR([Could not find specific FBC function of libSBML:
-#      make sure your libSBML version is >= 5.13.]))
+#      make sure your libSBML version is >= 5.16.]))
 
 
 
 #AC_SEARCH_LIBS([GeneProductAssociation_setAssociation], [sbml], ,
 #    AC_MSG_ERROR([Could not find specific FBC function of libSBML:
-#      make sure your libSBML version is >= 5.13.]))
+#      make sure your libSBML version is >= 5.16.]))
 
 
 
@@ -276,6 +279,21 @@ dnl # --------------------------------------------------------------------
 AC_SUBST(PKG_CFLAGS)
 AC_SUBST(PKG_LIBS)
 AC_SUBST(PKG_CPPFLAGS)
-AC_OUTPUT(src/Makevars)
+AC_SUBST(HAVE_GROUPS_PLUGIN)
+AC_SUBST(HAVE_FBC_PLUGIN)
+
+AC_CONFIG_FILES([src/Makevars.tmp:src/Makevars.in], [
+    if test -f src/Makevars && cmp -s src/Makevars.tmp src/Makevars; then
+      AC_MSG_NOTICE([creating src/Makevars])
+      AC_MSG_NOTICE([src/Makevars is unchanged])
+      rm src/Makevars.tmp
+    else
+      AC_MSG_NOTICE([creating src/Makevars])
+      mv src/Makevars.tmp src/Makevars
+    fi
+  ]
+)
+
+AC_OUTPUT
 
 exit 0

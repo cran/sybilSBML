@@ -222,6 +222,17 @@ getSBMLmodAnnotation <- function(sbmlm) {
 
 #------------------------------------------------------------------------------#
 
+getSBMLGroupsList <- function(sbmlm) {
+  
+  modGroups <- .Call("getSBMLGroupsList", PACKAGE = "sybilSBML",
+                sbmlPointer(sbmlm)
+  )
+  
+  return(modGroups)
+}
+
+
+#------------------------------------------------------------------------------#
 getSBMLnumCompart <- function(sbmlm) {
 
     num <- .Call("getSBMLnumCompart", PACKAGE = "sybilSBML",
@@ -335,21 +346,31 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
     stop("morg has to be of class modelorg\n")
   }
   
+  # warning, if FBC plugin is missing:
+  if (isAvailableFbcPlugin() == FALSE) {
+    warning("Missing FBC-plugin for libSBML. No SBML output will be written.")
+  }
+
+  # warning, if Groups plugin is missing:
+  if (isAvailableGroupsPlugin() == FALSE) {
+    warning("Missing Groups-plugin for libSBML. No SBML output will be written.")
+  }
+  
   ###right 
   if(level==1)
   { 
     # test if Matrix has no double values
     if( !all( S(morg) == floor(S(morg))) ) warning("Level 1 does not support double values")
     fbcLevel=0
-      if(version != 2)
-      {
-        warning("just Level 1 Version 2 will be supported")
-        version=2
-      }
-  }else if (level==2)
+    if(version != 2)
+    {
+      warning("just Level 1 Version 2 will be supported")
+      version=2
+    }
+  } else if (level==2)
   { 
     fbcLevel=0
-    if(version >5)
+    if(version > 5)
     {
       warning("Level 2 Version 5 will be supported")
       version=5 
@@ -359,16 +380,19 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
       warning("Level 2 Version 1 will be supported")
       version=1 
     }  
-  }
-  else if (level==3)
-  { if(fbcLevel >2)fbcLevel=2
-  if(version != 1)
-  {
-    print("Level 3 Version 1 will be supported")
-    version=1 
-  }
-  
-  }else {
+  } else if (level==3)
+  { 
+    if(fbcLevel > 2)
+    {
+      print("FBC level 2 will be supported")
+      fbcLevel=2
+    }
+    if(version != 1)
+    {
+      print("Level 3 Version 1 will be supported")
+      version=1 
+    }
+  } else {
     stop(" Support just for Level 1,2 and 3 \n")
   }
   
@@ -421,20 +445,63 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
   ### Start newSybil attr
   if(newSybil)
   { 
-    if(("notes" %in% colnames(mod_attr(morg))) && (printNotes) ) mod_notes<-as.character(mod_attr(morg)[['notes']])
-    if(("annotation" %in% colnames(mod_attr(morg))) && (printAnnos) ) mod_annotation<-as.character(mod_attr(morg)[['annotation']])
+    if(("notes" %in% colnames(mod_attr(morg))) && (printNotes) ) {
+    	mod_notes<-as.character(mod_attr(morg)[['notes']])
+    	if(any(is.na(mod_notes))){
+    		stop("mod_notes mustn't be NA")
+    	}
+    }
+    if(("annotation" %in% colnames(mod_attr(morg))) && (printAnnos) ) {
+    	mod_annotation<-as.character(mod_attr(morg)[['annotation']])
+    	if(any(is.na(mod_annotation))){
+    		stop("mod_annotation mustn't be NA")
+    	}
+    }
     
-    if(("notes" %in% colnames(comp_attr(morg)))    && (printNotes) ) com_notes<-as.character(as.list((comp_attr(morg)[['notes']])))
-    if(("annotation" %in% colnames(comp_attr(morg))) && (printAnnos)  ) com_annotation<-as.character(as.list((comp_attr(morg)[['annotation']])))
+    if(("notes" %in% colnames(comp_attr(morg)))    && (printNotes) ){
+    	com_notes<-as.character(as.list((comp_attr(morg)[['notes']])))
+    	if(any(is.na(com_notes))){
+    		stop("com_notes mustn't be NA")
+    	}
+    }
+    if(("annotation" %in% colnames(comp_attr(morg))) && (printAnnos)  ){
+    	com_annotation<-as.character(as.list((comp_attr(morg)[['annotation']])))
+    	if(any(is.na(com_annotation))){
+    		stop("com_annotation mustn't be NA")
+    	}
+    }
     
-    if("charge" %in% colnames(met_attr(morg))) met_charge<- as.integer(as.list((met_attr(morg)[['charge']])))
-    if("chemicalFormula" %in% colnames(met_attr(morg))) met_formula<-as.character(as.list((met_attr(morg)[['chemicalFormula']])))
-    if(("annotation" %in% colnames(met_attr(morg))) && (printAnnos)) met_anno<-as.character(as.list((met_attr(morg)[['annotation']])))
-    if("boundaryCondition" %in% colnames(met_attr(morg))) met_bnd<-as.logical(as.list((met_attr(morg)[['boundaryCondition']])))
+    if("charge" %in% colnames(met_attr(morg))){
+    	met_charge<- as.integer(as.list((met_attr(morg)[['charge']])))
+    	if(any(is.na(met_charge))){
+    		stop("met_charge mustn't be NA")
+    	}
+    }
+    if("chemicalFormula" %in% colnames(met_attr(morg))){
+    	met_formula<-as.character(as.list((met_attr(morg)[['chemicalFormula']])))
+    	if(any(is.na(met_formula))){
+    		stop("met_formula mustn't be NA")
+    	}
+    }
+    if(("annotation" %in% colnames(met_attr(morg))) && (printAnnos)){
+    	met_anno<-as.character(as.list((met_attr(morg)[['annotation']])))
+    	if(any(is.na(mod_notes))){
+    		stop("met_anno mustn't be NA")
+    	}
+    }
+    if("boundaryCondition" %in% colnames(met_attr(morg))){
+    	met_bnd<-as.logical(as.list((met_attr(morg)[['boundaryCondition']])))
+    	if(any(is.na(met_bnd))){
+    		stop("met_bnd mustn't be NA")
+    	}
+    }
     
     if(("notes" %in% colnames(met_attr(morg))) && (printNotes) )
     {   # delete Formular and charge from notes to do
       met_notes<-as.character(as.list((met_attr(morg)[['notes']])))
+      if(any(is.na(met_notes))){
+    		stop("met_notes mustn't be NA")
+    	}
       if (!is.null(met_charge) || !is.null(met_formula))
       {  
         for ( i in 1:met_num(morg)) 
@@ -478,12 +545,21 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
       }
       
     }
-    if(("annotation" %in% colnames(react_attr(morg))) && (printAnnos)) react_anno<-as.character(as.list((react_attr(morg)[['annotation']])))
+    if(("annotation" %in% colnames(react_attr(morg))) && (printAnnos)){
+    	react_anno<-as.character(as.list((react_attr(morg)[['annotation']])))
+    	if(any(is.na(react_anno))){
+    		stop("react_anno mustn't be NA")
+    	}
+    }
     
     # Merge Notes with "our" Notes and make sure gpr Rules from gpr
     if(("notes" %in% colnames(react_attr(morg))) && (printNotes))
     {
       react_notes<-as.character(as.list((react_attr(morg)[['notes']])))
+      if(any(is.na(react_notes))){
+      	stop("react_notes mustn't be NA")
+      }
+      
       # using
       #  SubSystem EXISTIERT nicht colnames(subSys(ec))
       
@@ -519,14 +595,20 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
     
   } ####END newSybil attr
   
-  # Subsystem
-  if(is.null(newsubS) && !(modhasubSys) ) for ( i in 1:react_num(morg)) {newsubS[i]<- paste(names(which(subSys(morg)[i,])), collapse=", ")}
-  
+  # format ids for sbml
   newmet_id <- paste0("M_", (deformatSBMLid(met_id(morg))))
-  #newmet_id <- sub("\\[(\\w)\\]$", "_\\1",  newmet_id) # append compartment id, if in postfix with square brkts
-  
   newreact_id <- paste0("R_", deformatSBMLid(react_id(morg)))
   newmet_comp<-mod_compart(morg)[met_comp(morg)]
+  
+  # Subsystem
+  if(is.null(newsubS) && !(modhasubSys) ) for ( i in 1:react_num(morg)) {newsubS[i]<- paste(names(which(subSys(morg)[i,])), collapse=", ")}
+  subSysGroups <- NULL
+  if(fbcLevel >= 2 && modhasubSys){
+  	subSysGroups <- apply(subSys(morg), 2, function(x){
+  		newreact_id[x]
+  	})
+  	names(subSysGroups) <- colnames(subSys(morg))
+  }
   
   
   success <-.Call("exportSBML", PACKAGE = "sybilSBML",
@@ -550,6 +632,8 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
                   as.numeric(uppbnd(morg)),
                   as.integer(obj_coef(morg)),
                   as.character(newsubS),
+                  subSysGroups,
+                  as.character(names(subSysGroups)),
                   as.character(deformatGene(gpr(morg))),
                   as.numeric(shrinkMatrix(morg,j=1:react_num(morg))),
                   mod_notes,
@@ -572,4 +656,28 @@ writeSBML<- function(morg=NULL,level=2,version=4,fbcLevel=0,filename="export.xml
   }  
   else  message(paste("Could not write file ",filename,"\n",sep=""), appendLF = FALSE);
   return (success)
+}
+
+
+
+#------------------------------------------------------------------------------#
+
+isAvailableFbcPlugin <- function() {
+
+    avail <- .Call("isAvailableFbcPlugin", PACKAGE = "sybilSBML"
+            )
+
+    return(avail)
+}
+
+
+
+#------------------------------------------------------------------------------#
+
+isAvailableGroupsPlugin <- function() {
+
+    avail <- .Call("isAvailableGroupsPlugin", PACKAGE = "sybilSBML"
+            )
+
+    return(avail)
 }

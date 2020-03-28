@@ -61,11 +61,15 @@
 \details{
   The library \code{libSBML} is used to export a \code{\link[sybil]{modelorg}}
   to a SBML file.
-
+  
+  If sybilSBML was built with a libSBML version, that was not including the FBC plugin
+  and the Groups plugin, the function is not writing an output file and returns FALSE.
+  Please make sure that you build sybilSBML with the libSBML version containing the
+  FBC and Group plugins (check out installation details).
 }
 
 \value{
-  A single boolean value for a successful export .
+  A single boolean value for a successful export.
 }
 
 \references{
@@ -94,7 +98,7 @@
 \author{
   Gabriel Gelius-Dietrich <geliudie@uni-duesseldorf.de>
 
-  Maintainer: Claus Jonathan Fritzemeier <clausjonathan.fritzemeier@uni-duesseldorf.de>
+  Maintainer: Mayo Roettger <mayo.roettger@hhu.de>
 }
 
 
@@ -111,7 +115,8 @@
   dir  <- system.file(package = "sybilSBML", "extdata")
   file <- file.path(dir, "ecoli_core_model.xml")
   mod  <- readSBMLmod(file, bndCond = FALSE)
-  writeSBML(mod,level=3,version=1,fbcLevel=2)
+  # write SBML file to tempdir():
+  writeSBML(mod,level=3,version=1,fbcLevel=2,filename=file.path(tempdir(), "export.xml"))
 }
 
 \keyword{ IO }
